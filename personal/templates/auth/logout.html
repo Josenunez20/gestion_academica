@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerrar Sesión - Gestión Académica</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .logout-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #555;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 30px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        button:hover {
+            background: #c0392b;
+        }
+        .cancel-link {
+            padding: 12px 30px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .cancel-link:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <h2>🚪 Cerrar Sesión</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit">Sí, cerrar sesión</button>
+        </form>
+        <a href="{% url 'search' %}" class="cancel-link">Cancelar</a>
+    </div>
+</body>
+</html>

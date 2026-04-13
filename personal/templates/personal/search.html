@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Personal Académico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .search-box {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .search-box form {
+            display: flex;
+            gap: 10px;
+        }
+        .search-box input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .search-box button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-box button:hover {
+            background-color: #27ae60;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .info-message {
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+        }
+        .no-results {
+            padding: 20px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        .nav-links {
+            margin-top: 20px;
+        }
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .count-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div style="background: #34495e; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-radius: 8px;">
+        <span>👤 Bienvenido, <strong>{{ user.username }}</strong> ({{ user.email }})</span>
+        <div>
+            <a href="{% url 'search' %}" style="color: white; margin-right: 20px; text-decoration: none;">🔍 Buscar</a>
+            <a href="{% url 'upload' %}" style="color: white; margin-right: 20px; text-decoration: none;">📤 Subir Excel</a>
+            <a href="{% url 'logout' %}" style="color: #f1c40f; text-decoration: none;">🚪 Cerrar Sesión</a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>🔍 Búsqueda de Personal Académico</h1>
+
+        <div class="nav-links">
+            <a href="{% url 'upload' %}">📤 Subir nuevo archivo Excel</a>
+        </div>
+
+        <div class="search-box">
+            <form method="get" action="{% url 'search' %}">
+                <input type="text" name="q" placeholder="Buscar por nombre, cédula, entidad o correo..." 
+                       value="{{ query }}" autofocus>
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+
+        {% if query %}
+            <div class="info-message">
+                Resultados para "<strong>{{ query }}</strong>" 
+                <span class="count-badge">{{ resultados|length }} encontrados</span>
+            </div>
+        {% endif %}
+
+        {% if resultados %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Entidad</th>
+                        <th>Cédula</th>
+                        <th>Nombre y Apellido</th>
+                        <th>Responsabilidad</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for persona in resultados %}
+                    <tr>
+                        <td>{{ persona.entidad }}</td>
+                        <td>{{ persona.cedula }}</td>
+                        <td>{{ persona.nombre_apellido }}</td>
+                        <td>{{ persona.responsabilidad }}</td>
+                        <td>{{ persona.telefono }}</td>
+                        <td>{{ persona.correo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif query %}
+            <div class="no-results">
+                No se encontraron registros que coincidan con "{{ query }}". Intenta con otro término.
+            </div>
+        {% else %}
+            <div class="info-message">
+                <p>👋 Ingresa un término de búsqueda para comenzar.</p>
+                <p>Puedes buscar por nombre, cédula, entidad o correo electrónico.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
