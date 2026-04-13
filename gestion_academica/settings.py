@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'gestion_academica.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gestion_academica',
+        'USER': 'postgres',
+        'PASSWORD': 'admin123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -124,3 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'                      # Nombre de la URL de login
 LOGIN_REDIRECT_URL = 'search'            # A dónde redirigir después de login exitoso
 LOGOUT_REDIRECT_URL = 'login'            # A dónde redirigir después de logout
+
+ALLOWED_HOSTS = ['*'] # Permitir todas las conexiones (no recomendado para producción)
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.16.15.72', '192.168.1.100'] # Permitir solo hosts específicos (recomendado para producción)
+ALLOWED_HOSTS = ['172.16.15.72', '172.16.15.*', 'localhost', '127.0.0.1'] # Permitir hosts en la red local (recomendado para producción)
