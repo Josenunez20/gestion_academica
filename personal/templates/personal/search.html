@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Personal - Gestión Académica</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2334495e'/%3E%3Ccircle cx='40' cy='40' r='20' fill='none' stroke='%23f1c40f' stroke-width='6'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='%23f1c40f' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='28' y='28' width='24' height='6' fill='%23f1c40f' rx='2'/%3E%3Cpath d='M28 34 L40 28 L52 34' fill='none' stroke='%23f1c40f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='40' cy='42' r='3' fill='%23f1c40f'/%3E%3C/svg%3E">
-    <title>Buscar Personal Académico</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 1200px;
@@ -23,6 +24,12 @@
             color: #2c3e50;
             margin-top: 0;
         }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
         .search-box {
             background: #ecf0f1;
             padding: 20px;
@@ -32,9 +39,18 @@
         .search-box form {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
         .search-box input[type="text"] {
             flex: 1;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        .search-box select {
             padding: 12px;
             border: 1px solid #bdc3c7;
             border-radius: 5px;
@@ -48,6 +64,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
         }
         .search-box button:hover {
             background-color: #27ae60;
@@ -55,7 +72,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 14px;
         }
         th, td {
@@ -66,6 +83,7 @@
         th {
             background-color: #34495e;
             color: white;
+            white-space: nowrap;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -85,17 +103,6 @@
             border-left: 4px solid #ffc107;
             color: #856404;
         }
-        .nav-links {
-            margin-top: 20px;
-        }
-        .nav-links a {
-            color: #3498db;
-            text-decoration: none;
-            margin-right: 20px;
-        }
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
         .count-badge {
             background-color: #3498db;
             color: white;
@@ -104,40 +111,94 @@
             font-size: 0.9em;
             margin-left: 10px;
         }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-header .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: white;
+        }
+        .badge-responsable { background-color: #3498db; }
+        .badge-regional { background-color: #2ecc71; }
+        .badge-nacional { background-color: #e67e22; }
+        .navbar {
+            background: #34495e;
+            padding: 10px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .navbar a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .logout-link {
+            color: #f1c40f !important;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        .text-muted {
+            color: #999;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <div style="background: #34495e; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-radius: 8px;">
+    <div class="navbar">
         <span>👤 Bienvenido, <strong>{{ user.username }}</strong> ({{ user.email }})</span>
         <div>
-            <a href="{% url 'search' %}" style="color: white; margin-right: 20px; text-decoration: none;">🔍 Buscar</a>
-            <a href="{% url 'upload' %}" style="color: white; margin-right: 20px; text-decoration: none;">📤 Subir Excel</a>
-            <a href="{% url 'logout' %}" style="color: #f1c40f; text-decoration: none;">🚪 Cerrar Sesión</a>
+            <a href="{% url 'search' %}">🔍 Buscar</a>
+            <a href="{% url 'upload' %}">📤 Subir Excel</a>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: #f1c40f; cursor: pointer; font: inherit; padding: 0; text-decoration: underline;" class="logout-link">🚪 Cerrar Sesión</button>
+            </form>
         </div>
     </div>
+
     <div class="container">
         <h1>🔍 Búsqueda de Personal Académico</h1>
-
-        <div class="nav-links">
-            <a href="{% url 'upload' %}">📤 Subir nuevo archivo Excel</a>
-        </div>
 
         <div class="search-box">
             <form method="get" action="{% url 'search' %}">
                 <input type="text" name="q" placeholder="Buscar por nombre, cédula, entidad o correo..." 
                        value="{{ query }}" autofocus>
-                <button type="submit">Buscar</button>
+                <select name="tipo">
+                    <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+                    <option value="responsables" {% if tipo == 'responsables' %}selected{% endif %}>Responsables Académicos</option>
+                    <option value="tutores_regionales" {% if tipo == 'tutores_regionales' %}selected{% endif %}>Tutores Regionales</option>
+                    <option value="tutores_nacionales" {% if tipo == 'tutores_nacionales' %}selected{% endif %}>Tutores Nacionales</option>
+                </select>
+                <button type="submit">🔍 Buscar</button>
             </form>
         </div>
 
         {% if query %}
             <div class="info-message">
                 Resultados para "<strong>{{ query }}</strong>" 
-                <span class="count-badge">{{ resultados|length }} encontrados</span>
+                <span class="count-badge">{{ total_resultados }} encontrados</span>
             </div>
         {% endif %}
 
-        {% if resultados %}
+        <!-- ==================== RESPONSABLES ACADÉMICOS ==================== -->
+        {% if responsables %}
+        <div class="section-header">
+            <h2>📋 Responsables Académicos</h2>
+            <span class="badge badge-responsable">{{ responsables|length }}</span>
+        </div>
+        <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -150,23 +211,91 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for persona in resultados %}
+                    {% for r in responsables %}
                     <tr>
-                        <td>{{ persona.entidad }}</td>
-                        <td>{{ persona.cedula }}</td>
-                        <td>{{ persona.nombre_apellido }}</td>
-                        <td>{{ persona.responsabilidad }}</td>
-                        <td>{{ persona.telefono }}</td>
-                        <td>{{ persona.correo }}</td>
+                        <td><strong>{{ r.entidad }}</strong></td>
+                        <td>{{ r.cedula }}</td>
+                        <td>{{ r.nombre_apellido }}</td>
+                        <td>{{ r.responsabilidad }}</td>
+                        <td>{{ r.telefono }}</td>
+                        <td>{{ r.correo|default:"—" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% elif query %}
+        </div>
+        {% endif %}
+
+        <!-- ==================== TUTORES REGIONALES ==================== -->
+        {% if tutores_regionales %}
+        <div class="section-header">
+            <h2>🏫 Tutores Regionales</h2>
+            <span class="badge badge-regional">{{ tutores_regionales|length }}</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Entidad</th>
+                        <th>Cédula</th>
+                        <th>Nombre y Apellido</th>
+                        <th>Área de Formación</th>
+                        <th>Condición Laboral</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in tutores_regionales %}
+                    <tr>
+                        <td><strong>{{ r.entidad }}</strong></td>
+                        <td>{{ r.cedula }}</td>
+                        <td>{{ r.nombre_apellido }}</td>
+                        <td>{{ r.area_formacion }}</td>
+                        <td>{{ r.condicion_laboral }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ==================== TUTORES NACIONALES ==================== -->
+        {% if tutores_nacionales %}
+        <div class="section-header">
+            <h2>🎓 Tutores Nacionales</h2>
+            <span class="badge badge-nacional">{{ tutores_nacionales|length }}</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre y Apellido</th>
+                        <th>Programa de Formación</th>
+                        <th>Cédula</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in tutores_nacionales %}
+                    <tr>
+                        <td><strong>{{ r.nombre_apellido }}</strong></td>
+                        <td>{{ r.programa_formacion }}</td>
+                        <td>{{ r.cedula|default:"—" }}</td>
+                        <td>{{ r.telefono|default:"—" }}</td>
+                        <td>{{ r.correo|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ==================== SIN RESULTADOS ==================== -->
+        {% if query and not responsables and not tutores_regionales and not tutores_nacionales %}
             <div class="no-results">
-                No se encontraron registros que coincidan con "{{ query }}". Intenta con otro término.
+                No se encontraron registros que coincidan con "<strong>{{ query }}</strong>". Intenta con otro término.
             </div>
-        {% else %}
+        {% elif not query %}
             <div class="info-message">
                 <p>👋 Ingresa un término de búsqueda para comenzar.</p>
                 <p>Puedes buscar por nombre, cédula, entidad o correo electrónico.</p>

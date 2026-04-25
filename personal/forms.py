@@ -4,9 +4,20 @@ from django.contrib.auth.models import User
 
 # Formulario para subir Excel
 class ExcelUploadForm(forms.Form):
+    TIPO_CHOICES = [
+        ('responsables', 'Responsables Académicos'),
+        ('tutores_regionales', 'Tutores Regionales'),
+        ('tutores_nacionales', 'Tutores Nacionales'),
+    ]
+    
+    tipo_personal = forms.ChoiceField(
+        choices=TIPO_CHOICES,
+        label="Tipo de personal a cargar",
+        help_text="Selecciona qué tipo de personal contiene el archivo Excel."
+    )
     archivo_excel = forms.FileField(
         label="Selecciona archivo Excel",
-        help_text="Formato .xlsx. El archivo debe tener la estructura esperada."
+        help_text="Formato .xlsx. El archivo debe tener la estructura esperada según el tipo seleccionado."
     )
 
 # Formulario para registro de usuarios

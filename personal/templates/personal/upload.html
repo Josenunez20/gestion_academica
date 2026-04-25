@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Excel - Gestión Académica</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2334495e'/%3E%3Ccircle cx='40' cy='40' r='20' fill='none' stroke='%23f1c40f' stroke-width='6'/%3E%3Cline x1='55' y1='55' x2='75' y2='75' stroke='%23f1c40f' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='28' y='28' width='24' height='6' fill='%23f1c40f' rx='2'/%3E%3Cpath d='M28 34 L40 28 L52 34' fill='none' stroke='%23f1c40f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='40' cy='42' r='3' fill='%23f1c40f'/%3E%3C/svg%3E">
-    <title>Cargar Excel - Personal Académico</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -39,13 +39,18 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
         .upload-box {
             background: #ecf0f1;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 30px;
         }
-        form p {
+        form div {
             margin: 15px 0;
         }
         label {
@@ -54,7 +59,7 @@
             margin-bottom: 8px;
             color: #2c3e50;
         }
-        input[type="file"] {
+        input[type="file"], select {
             width: 100%;
             padding: 12px;
             border: 1px solid #bdc3c7;
@@ -98,9 +103,6 @@
             margin: 5px 0;
             color: #555;
         }
-        .help-text strong {
-            color: #2c3e50;
-        }
         .navbar {
             background: #34495e;
             padding: 10px 20px;
@@ -125,7 +127,6 @@
     </style>
 </head>
 <body>
-    <!-- Barra de navegación -->
     <div class="navbar">
         <span>👤 Bienvenido, <strong>{{ user.username }}</strong> ({{ user.email }})</span>
         <div>
@@ -139,7 +140,7 @@
     </div>
 
     <div class="container">
-        <h1>📤 Cargar archivo Excel de personal académico</h1>
+        <h1>📤 Cargar archivo Excel de personal</h1>
 
         {% if messages %}
             {% for message in messages %}
@@ -150,25 +151,29 @@
         <div class="upload-box">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div style="margin-bottom: 20px;">
+                <div>
+                    <label for="{{ form.tipo_personal.id_for_label }}">Tipo de personal a cargar</label>
+                    {{ form.tipo_personal }}
+                    {% if form.tipo_personal.help_text %}
+                        <small style="color: #7f8c8d;">{{ form.tipo_personal.help_text }}</small>
+                    {% endif %}
+                </div>
+                <div>
                     <label for="{{ form.archivo_excel.id_for_label }}">Selecciona archivo Excel</label>
                     {{ form.archivo_excel }}
                     {% if form.archivo_excel.help_text %}
-                        <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">{{ form.archivo_excel.help_text }}</div>
+                        <small style="color: #7f8c8d;">{{ form.archivo_excel.help_text }}</small>
                     {% endif %}
                 </div>
                 <button type="submit">📤 Subir y procesar</button>
             </form>
         </div>
 
-        <div class="nav-links">
-            <p><a href="{% url 'search' %}">← Ir al buscador de personal</a></p>
-        </div>
-
         <div class="help-text">
-            <p><strong>📋 Estructura esperada del Excel:</strong></p>
-            <p>El archivo debe tener el mismo formato que el ejemplo proporcionado, con los datos comenzando en la fila 7 y las columnas: N°, ENTIDAD, CÉDULA, NOMBRE Y APELLIDO, RESPONSABILIDAD, TELÉFONO, CORREO.</p>
-            <p style="margin-top: 10px;"><strong>💡 Nota:</strong> Los registros existentes se actualizarán basándose en la combinación de Entidad + Cédula.</p>
+            <p><strong>📋 Tipos de archivo esperados:</strong></p>
+            <p><strong>Responsables Académicos:</strong> Columnas: N°, ENTIDAD, CÉDULA, NOMBRE Y APELLIDO, RESPONSABILIDAD, TELÉFONO, CORREO</p>
+            <p><strong>Tutores Regionales:</strong> Columnas: N°, CÉDULA, NOMBRE Y APELLIDO, ENTIDAD, CONDICIÓN LABORAL, ÁREA DE FORMACIÓN</p>
+            <p><strong>Tutores Nacionales:</strong> Columnas: N°, NOMBRE Y APELLIDO, PROGRAMA DE FORMACIÓN, CÉDULA, TELÉFONO, CORREO</p>
         </div>
     </div>
 </body>
