@@ -31,43 +31,73 @@
             border-bottom: 3px solid #3498db;
         }
         .search-box {
-            background: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #ecf0f1 0%, #dfe6e9 100%);
+            padding: 25px;
+            border-radius: 12px;
             margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .search-box form {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
             align-items: center;
         }
         .search-box input[type="text"] {
             flex: 1;
-            padding: 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 5px;
+            padding: 14px 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
             font-size: 16px;
-            min-width: 200px;
+            min-width: 250px;
+            transition: border-color 0.3s;
+        }
+        .search-box input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
         }
         .search-box select {
-            padding: 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 5px;
+            padding: 14px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
             font-size: 16px;
+            background: white;
+            cursor: pointer;
         }
         .search-box button {
             background-color: #2ecc71;
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
+            padding: 14px 30px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
         .search-box button:hover {
             background-color: #27ae60;
+        }
+        .search-hints {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .search-hint-tag {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            color: #555;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .search-hint-tag:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
         }
         table {
             width: 100%;
@@ -96,17 +126,19 @@
             background-color: #e8f4fd;
             border-left: 4px solid #3498db;
             margin-bottom: 20px;
+            border-radius: 4px;
         }
         .no-results {
             padding: 20px;
             background-color: #fff3cd;
             border-left: 4px solid #ffc107;
             color: #856404;
+            border-radius: 4px;
         }
         .count-badge {
             background-color: #3498db;
             color: white;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 0.9em;
             margin-left: 10px;
@@ -115,6 +147,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-top: 20px;
         }
         .section-header .badge {
             padding: 5px 12px;
@@ -148,10 +181,45 @@
         }
         .table-wrapper {
             overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .text-muted {
             color: #999;
             font-style: italic;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        .search-summary {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .clear-search {
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-left: auto;
+        }
+        .clear-search:hover {
+            text-decoration: underline;
+        }
+        .field-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .field-badge {
+            background: #ecf0f1;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            color: #555;
         }
     </style>
 </head>
@@ -173,22 +241,39 @@
 
         <div class="search-box">
             <form method="get" action="{% url 'search' %}">
-                <input type="text" name="q" placeholder="Buscar por nombre, cédula, entidad o correo..." 
+                <input type="text" name="q" 
+                       placeholder="🔍 Busca cualquier cosa: nombre, cédula, entidad, área, correo, teléfono..." 
                        value="{{ query }}" autofocus>
                 <select name="tipo">
-                    <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
-                    <option value="responsables" {% if tipo == 'responsables' %}selected{% endif %}>Responsables Académicos</option>
-                    <option value="tutores_regionales" {% if tipo == 'tutores_regionales' %}selected{% endif %}>Tutores Regionales</option>
-                    <option value="tutores_nacionales" {% if tipo == 'tutores_nacionales' %}selected{% endif %}>Tutores Nacionales</option>
+                    <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>📂 Todos los tipos</option>
+                    <option value="responsables" {% if tipo == 'responsables' %}selected{% endif %}>📋 Responsables Académicos</option>
+                    <option value="tutores_regionales" {% if tipo == 'tutores_regionales' %}selected{% endif %}>🏫 Tutores Regionales</option>
+                    <option value="tutores_nacionales" {% if tipo == 'tutores_nacionales' %}selected{% endif %}>🎓 Tutores Nacionales</option>
                 </select>
                 <button type="submit">🔍 Buscar</button>
             </form>
+            {% comment %} <div class="search-hints">
+                <span style="color: #7f8c8d; font-size: 0.8em;">Búsquedas rápidas:</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='CONTRATO'; document.querySelector('form').submit();">Contrato</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='ESTIPENDIO'; document.querySelector('form').submit();">Estipendio</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='GESTION ACADEMICA'; document.querySelector('form').submit();">Gestión Académica</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='AMAZONAS'; document.querySelector('form').submit();">Amazonas</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='ZULIA'; document.querySelector('form').submit();">Zulia</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='MATEMATICA'; document.querySelector('form').submit();">Matemática</span>
+                <span class="search-hint-tag" onclick="document.querySelector('input[name=q]').value='INICIAL'; document.querySelector('form').submit();">Inicial</span>
+            </div> {% endcomment %}
         </div>
 
         {% if query %}
             <div class="info-message">
-                Resultados para "<strong>{{ query }}</strong>" 
-                <span class="count-badge">{{ total_resultados }} encontrados</span>
+                <div class="search-summary">
+                    <span>Resultados para "<strong>{{ query }}</strong>"</span>
+                    <span class="count-badge">{{ total_resultados }} encontrados</span>
+                    <span style="color: #7f8c8d; font-size: 0.85em;">
+                        en {{ responsables|length }} responsables, {{ tutores_regionales|length }} tutores regionales, {{ tutores_nacionales|length }} tutores nacionales
+                    </span>
+                    <a href="{% url 'search' %}" class="clear-search">✕ Limpiar búsqueda</a>
+                </div>
             </div>
         {% endif %}
 
@@ -197,6 +282,14 @@
         <div class="section-header">
             <h2>📋 Responsables Académicos</h2>
             <span class="badge badge-responsable">{{ responsables|length }}</span>
+        </div>
+        <div class="field-list">
+            <span class="field-badge">Entidad</span>
+            <span class="field-badge">Cédula</span>
+            <span class="field-badge">Nombre</span>
+            <span class="field-badge">Responsabilidad</span>
+            <span class="field-badge">Teléfono</span>
+            <span class="field-badge">Correo</span>
         </div>
         <div class="table-wrapper">
             <table>
@@ -232,13 +325,20 @@
             <h2>🏫 Tutores Regionales</h2>
             <span class="badge badge-regional">{{ tutores_regionales|length }}</span>
         </div>
+        <div class="field-list">
+            <span class="field-badge">Entidad</span>
+            <span class="field-badge">Cédula</span>
+            <span class="field-badge">Nombre</span>
+            <span class="field-badge">Área de Formación</span>
+            <span class="field-badge">Condición Laboral</span>
+        </div>
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Entidad</th>
                         <th>Cédula</th>
                         <th>Nombre y Apellido</th>
+                        <th>Entidad</th>
                         <th>Área de Formación</th>
                         <th>Condición Laboral</th>
                     </tr>
@@ -246,9 +346,9 @@
                 <tbody>
                     {% for r in tutores_regionales %}
                     <tr>
-                        <td><strong>{{ r.entidad }}</strong></td>
                         <td>{{ r.cedula }}</td>
-                        <td>{{ r.nombre_apellido }}</td>
+                        <td><strong>{{ r.nombre_apellido }}</strong></td>
+                        <td>{{ r.entidad }}</td>
                         <td>{{ r.area_formacion }}</td>
                         <td>{{ r.condicion_laboral }}</td>
                     </tr>
@@ -263,6 +363,13 @@
         <div class="section-header">
             <h2>🎓 Tutores Nacionales</h2>
             <span class="badge badge-nacional">{{ tutores_nacionales|length }}</span>
+        </div>
+        <div class="field-list">
+            <span class="field-badge">Nombre</span>
+            <span class="field-badge">Programa de Formación</span>
+            <span class="field-badge">Cédula</span>
+            <span class="field-badge">Teléfono</span>
+            <span class="field-badge">Correo</span>
         </div>
         <div class="table-wrapper">
             <table>
@@ -293,12 +400,18 @@
         <!-- ==================== SIN RESULTADOS ==================== -->
         {% if query and not responsables and not tutores_regionales and not tutores_nacionales %}
             <div class="no-results">
-                No se encontraron registros que coincidan con "<strong>{{ query }}</strong>". Intenta con otro término.
+                <strong>😕 Sin resultados</strong><br>
+                No se encontraron registros que coincidan con "<strong>{{ query }}</strong>" en ninguna categoría.<br>
+                <small style="color: #856404;">💡 Sugerencia: Prueba con otro término, busca por cédula, nombre, entidad, área de formación o condición laboral.</small>
             </div>
         {% elif not query %}
             <div class="info-message">
-                <p>👋 Ingresa un término de búsqueda para comenzar.</p>
-                <p>Puedes buscar por nombre, cédula, entidad o correo electrónico.</p>
+                <p>👋 <strong>¡Bienvenido al buscador!</strong></p>
+                <p>Puedes buscar por <strong>cualquier tipo de dato</strong>: nombre, cédula, entidad, área de formación, condición laboral, correo, teléfono, etc.</p>
+                <p>También puedes usar los filtros rápidos o seleccionar una categoría específica.</p>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #7f8c8d;">
+                    📌 <strong>Ejemplos de búsqueda:</strong> "CONTRATO", "MATEMATICA", "0412", "ZULIA", "GESTION ACADEMICA", "INICIAL"
+                </p>
             </div>
         {% endif %}
     </div>

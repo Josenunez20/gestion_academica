@@ -68,6 +68,9 @@
             background: white;
             box-sizing: border-box;
         }
+        select {
+            cursor: pointer;
+        }
         button {
             background-color: #3498db;
             color: white;
@@ -78,6 +81,7 @@
             font-size: 16px;
             font-weight: bold;
             margin-top: 10px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #2980b9;
@@ -94,14 +98,41 @@
         }
         .help-text {
             background-color: #f8f9fa;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #27ae60;
             margin-top: 20px;
         }
+        .help-text h3 {
+            color: #27ae60;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
         .help-text p {
-            margin: 5px 0;
+            margin: 8px 0;
             color: #555;
+            line-height: 1.6;
+        }
+        .help-text strong {
+            color: #2c3e50;
+        }
+        .help-text .icon {
+            font-size: 1.2em;
+        }
+        .auto-detect-badge {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+        .selector-hint {
+            color: #e67e22;
+            font-style: italic;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
         .navbar {
             background: #34495e;
@@ -123,6 +154,28 @@
         }
         .logout-link {
             color: #f1c40f !important;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .feature-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        .feature-card .emoji {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .feature-card strong {
+            display: block;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -152,8 +205,14 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div>
-                    <label for="{{ form.tipo_personal.id_for_label }}">Tipo de personal a cargar</label>
+                    <label for="{{ form.tipo_personal.id_for_label }}">
+                        Tipo de personal a cargar 
+                        <span class="auto-detect-badge">🪄 Detección automática activa</span>
+                    </label>
                     {{ form.tipo_personal }}
+                    <div class="selector-hint">
+                        💡 <strong>Consejo:</strong> Si no estás seguro del tipo, déjalo sin seleccionar. El sistema detectará automáticamente el tipo de documento según sus columnas.
+                    </div>
                     {% if form.tipo_personal.help_text %}
                         <small style="color: #7f8c8d;">{{ form.tipo_personal.help_text }}</small>
                     {% endif %}
@@ -170,10 +229,34 @@
         </div>
 
         <div class="help-text">
-            <p><strong>📋 Tipos de archivo esperados:</strong></p>
-            <p><strong>Responsables Académicos:</strong> Columnas: N°, ENTIDAD, CÉDULA, NOMBRE Y APELLIDO, RESPONSABILIDAD, TELÉFONO, CORREO</p>
-            <p><strong>Tutores Regionales:</strong> Columnas: N°, CÉDULA, NOMBRE Y APELLIDO, ENTIDAD, CONDICIÓN LABORAL, ÁREA DE FORMACIÓN</p>
-            <p><strong>Tutores Nacionales:</strong> Columnas: N°, NOMBRE Y APELLIDO, PROGRAMA DE FORMACIÓN, CÉDULA, TELÉFONO, CORREO</p>
+            <h3>📋 ¿Cómo funciona el sistema?</h3>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="emoji">🪄</span>
+                    <strong>Detección Inteligente</strong>
+                    <p style="font-size: 0.9em; color: #555;">El sistema analiza automáticamente las columnas del Excel y determina si son Responsables Académicos, Tutores Regionales o Tutores Nacionales.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">📁</span>
+                    <strong>Nuevos Documentos</strong>
+                    <p style="font-size: 0.9em; color: #555;">Si tienes un Excel con una estructura diferente, el sistema lo reconocerá y creará automáticamente la nueva categoría de personal.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">🔄</span>
+                    <strong>Actualización Continua</strong>
+                    <p style="font-size: 0.9em; color: #555;">Puedes subir el mismo tipo de documento varias veces. El sistema actualiza los registros existentes y agrega los nuevos automáticamente.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="emoji">🔍</span>
+                    <strong>Búsqueda Unificada</strong>
+                    <p style="font-size: 0.9em; color: #555;">Todos los documentos cargados se integran en el buscador general. Puedes filtrar por tipo de personal.</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px; text-align: center; color: #7f8c8d; font-style: italic;">
+                ✨ <strong>Importante:</strong> Asegúrate de que tus archivos Excel tengan los encabezados de columna correctos para una mejor detección automática.
+            </p>
         </div>
     </div>
 </body>

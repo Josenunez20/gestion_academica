@@ -1,0 +1,56 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+.env/
+virtualenv/
+*.pyc
+__pycache__/
+
+# Base de datos SQLite
+*.sqlite3
+db.sqlite3
+
+# Archivos de migraciones (opcional - solo si trabajas solo)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Archivos de configuración sensible
+.env
+.env.local
+.env.production
+*.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos de Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribución / empaquetado
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Archivos de logs
+*.log
+
+# Archivos temporales
+temp/
+tmp/

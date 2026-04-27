@@ -74,16 +74,25 @@ def upload_excel(request):
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             archivo = request.FILES['archivo_excel']
-            tipo_personal = form.cleaned_data['tipo_personal']
+            tipo_personal = form.cleaned_data.get('tipo_personal', 'auto')
             
             try:
                 df = pd.read_excel(archivo, engine='openpyxl', header=None)
                 
-                # Detectar automáticamente si no coincide con lo seleccionado
-                tipo_detectado = detectar_tipo_archivo(df)
-                if tipo_detectado and tipo_detectado != tipo_personal:
-                    messages.warning(request, f"El archivo parece ser de tipo '{tipo_detectado}'. Se usará ese tipo.")
-                    tipo_personal = tipo_detectado
+                # Si es detección automática o no se seleccionó tipo
+                if tipo_personal == 'auto' or tipo_personal == '':
+                    tipo_detectado = detectar_tipo_archivo(df)
+                    if tipo_detectado:
+                        tipo_personal = tipo_detectado
+                        messages.info(request, f"🔍 Tipo detectado automáticamente: '{tipo_detectado}'")
+                    else:
+                        messages.error(request, "No se pudo detectar el tipo de archivo. Por favor, selecciona manualmente el tipo.")
+                        return render(request, 'personal/upload.html', {'form': form})
+                else:
+                    # Verificar si el tipo seleccionado coincide con la detección
+                    tipo_detectado = detectar_tipo_archivo(df)
+                    if tipo_detectado and tipo_detectado != tipo_personal:
+                        messages.warning(request, f"⚠️ El archivo parece ser de tipo '{tipo_detectado}', pero se procesará como '{tipo_personal}'.")
                 
                 if tipo_personal == 'responsables':
                     resultado = procesar_responsables(df)
@@ -92,7 +101,7 @@ def upload_excel(request):
                 elif tipo_personal == 'tutores_nacionales':
                     resultado = procesar_tutores_nacionales(df)
                 else:
-                    messages.error(request, "No se pudo determinar el tipo de archivo.")
+                    messages.error(request, "Tipo de personal no reconocido.")
                     return render(request, 'personal/upload.html', {'form': form})
                 
                 messages.success(request, resultado)
@@ -100,7 +109,7 @@ def upload_excel(request):
             except Exception as e:
                 messages.error(request, f"Error al procesar el archivo: {e}")
     else:
-        form = ExcelUploadForm()
+        form = ExcelUploadForm(initial={'tipo_personal': 'auto'})
     
     return render(request, 'personal/upload.html', {'form': form})
 
@@ -279,20 +288,20 @@ def search_personal(request):
     total_resultados = 0
     
     if query:
-        # --- Responsables Académicos ---
-        if tipo in ['todos', 'responsables']:
+        # Búsqueda en TODOS los campos de Responsables Académicos
+        if tipo == 'todos' or tipo == 'responsables':
             responsables = ResponsableAcademico.objects.filter(
                 Q(nombre_apellido__icontains=query) |
                 Q(cedula__icontains=query) |
                 Q(entidad__icontains=query) |
                 Q(correo__icontains=query) |
-                Q(responsabilidad__icontains=query) |
-                Q(telefono__icontains=query)
+                Q(telefono__icontains=query) |
+                Q(responsabilidad__icontains=query)
             ).order_by('entidad', 'nombre_apellido')
             total_resultados += responsables.count()
         
-        # --- Tutores Regionales ---
-        if tipo in ['todos', 'tutores_regionales']:
+        # Búsqueda en TODOS los campos de Tutores Regionales
+        if tipo == 'todos' or tipo == 'tutores_regionales':
             tutores_regionales = TutorRegional.objects.filter(
                 Q(nombre_apellido__icontains=query) |
                 Q(cedula__icontains=query) |
@@ -302,8 +311,8 @@ def search_personal(request):
             ).order_by('entidad', 'nombre_apellido')
             total_resultados += tutores_regionales.count()
         
-        # --- Tutores Nacionales ---
-        if tipo in ['todos', 'tutores_nacionales']:
+        # Búsqueda en TODOS los campos de Tutores Nacionales
+        if tipo == 'todos' or tipo == 'tutores_nacionales':
             tutores_nacionales = TutorNacional.objects.filter(
                 Q(nombre_apellido__icontains=query) |
                 Q(cedula__icontains=query) |
